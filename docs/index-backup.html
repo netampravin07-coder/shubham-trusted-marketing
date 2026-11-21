@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shubham Trusted Marketing</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0b1020;color:white;font-family:Arial;padding:20px}
+.box{max-width:400px;margin:55px auto;background:#17233c;padding:28px;border-radius:16px}
+h1{text-align:center;color:#55dfc0;font-size:24px}
+p{text-align:center;color:#aab7cf}
+input{width:100%;padding:14px;margin:9px 0;background:#0b1428;border:1px solid #34435f;border-radius:8px;color:white}
+button{width:100%;padding:13px;margin-top:12px;border:0;border-radius:8px;background:#55dfc0;font-weight:bold;cursor:pointer}
+.google{background:white;color:#222}
+.switch{background:#34435f;color:white}
+#dashboard{display:none}
+.product{background:#253552;padding:18px;margin-top:15px;border-radius:10px}
+#status{color:#55dfc0;overflow-wrap:anywhere}
+</style>
+</head>
+<body>
+
+<div class="box" id="loginBox">
+<h1>SHUBHAM TRUSTED MARKETING</h1>
+<p>Welcome to our marketplace</p>
+
+<input id="email" type="email" placeholder="Your Email" required>
+<input id="password" type="password" placeholder="Password" required>
+
+<button onclick="login()">Login</button>
+<button onclick="signup()">Create Account</button>
+<button class="google" onclick="googleSign()">Continue with Google</button>
+
+<p id="status"></p>
+</div>
+
+<div class="box" id="dashboard">
+<h1>Welcome!</h1>
+<p id="userEmail"></p>
+
+<div class="product">
+<h3>🎮 Gaming Gift Cards</h3>
+<p>Authorized gift cards</p>
+</div>
+
+<div class="product">
+<h3>🛠️ Digital Tools</h3>
+<p>Legal software and tools</p>
+</div>
+
+<div class="product">
+<h3>💳 Authorized Gift Cards</h3>
+<p>Officially sourced products</p>
+</div>
+
+<button onclick="logout()">Logout</button>
+</div>
+
+<script type="module">
+import {
+getAuth,onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/13.4.0/firebase-auth.js";
+
+import "./firebase.js";
+
+const auth=getAuth();
+const status=document.getElementById("status");
+
+window.login=async()=>{
+try{
+await window.loginUser(
+document.getElementById("email").value,
+document.getElementById("password").value
+);
+status.textContent="Login successful!";
+}catch(e){
+status.textContent="Login failed: "+e.message;
+}
+};
+
+window.signup=async()=>{
+try{
+await window.registerUser(
+document.getElementById("email").value,
+document.getElementById("password").value
+);
+status.textContent="Account created!";
+}catch(e){
+status.textContent="Signup failed: "+e.message;
+}
+};
+
+window.googleSign=async()=>{
+try{
+await window.googleLogin();
+}catch(e){
+status.textContent="Google login failed: "+e.message;
+}
+};
+
+window.logout=async()=>{
+await window.logoutUser();
+};
+
+onAuthStateChanged(auth,user=>{
+document.getElementById("loginBox").style.display=user?"none":"block";
+document.getElementById("dashboard").style.display=user?"block":"none";
+if(user)document.getElementById("userEmail").textContent=user.email;
+});
+</script>
+</body>
+</html>

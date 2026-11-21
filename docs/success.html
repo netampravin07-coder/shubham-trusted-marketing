@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Order Confirmation</title>
+<style>
+body{
+ background:#0b1020;
+ color:white;
+ font-family:Arial;
+ text-align:center;
+ padding:20px;
+}
+.box{
+ max-width:420px;
+ margin:50px auto;
+ padding:25px;
+ background:#18223c;
+ border-radius:15px;
+}
+h1{color:#f5c451}
+</style>
+</head>
+<body>
+
+<div class="box">
+<h1>Order Received!</h1>
+<h2 id="product"></h2>
+<h2 id="price"></h2>
+<p>Payment verification is pending.</p>
+<p>Your order is not confirmed as paid yet.</p>
+<button onclick="location.href='index.html'">
+Back to Home
+</button>
+</div>
+
+<script>
+const params=new URLSearchParams(location.search);
+
+document.getElementById("product").textContent=
+"Product: "+(params.get("name")||"Not selected");
+
+document.getElementById("price").textContent=
+"Amount: ₹"+(params.get("price")||"0");
+</script>
+
+</body>
+</html>

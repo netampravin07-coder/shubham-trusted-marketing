@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SHUBHAM TRUSTED MARKETING</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;
+ font-family:Arial,sans-serif;
+ background:#0b1020;
+ color:white;
+}
+header{
+ background:#151d35;
+ padding:22px 15px;
+ text-align:center;
+ border-bottom:2px solid #d6a83c;
+}
+header h1{color:#f5c451;font-size:24px}
+header p{color:#ccc}
+nav{
+ display:flex;
+ justify-content:center;
+ gap:12px;
+ padding:15px;
+ flex-wrap:wrap;
+}
+button{
+ padding:12px 20px;
+ border:0;
+ border-radius:8px;
+ background:#eab83f;
+ font-weight:bold;
+ cursor:pointer;
+}
+.hero{
+ text-align:center;
+ padding:35px 15px;
+}
+.hero h2{color:#f5c451}
+.products{
+ display:grid;
+ grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+ gap:20px;
+ padding:20px;
+}
+.card{
+ background:#18223c;
+ border:1px solid #394765;
+ border-radius:14px;
+ padding:15px;
+ text-align:center;
+}
+.card img{
+ width:100%;
+ max-height:190px;
+ object-fit:contain;
+ border-radius:10px;
+}
+.card h3{color:#f5c451}
+.price{font-size:21px;color:#65e6a1}
+footer{
+ text-align:center;
+ padding:25px;
+ color:#aaa;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>SHUBHAM TRUSTED MARKETING</h1>
+<p>Your Digital Products Marketplace</p>
+</header>
+
+<nav>
+<button onclick="location.href='index-old.html'">Login / Signup</button>
+<button onclick="location.href='dashboard.html'">Admin Dashboard</button>
+</nav>
+
+<section class="hero">
+<h2>Welcome to Our Store</h2>
+<p>Explore our available digital products.</p>
+</section>
+
+<h2 style="text-align:center;color:#f5c451">
+Our Products
+</h2>
+
+<div class="products" id="products">
+<p>Loading Products...</p>
+</div>
+
+<footer>
+<p>SHUBHAM TRUSTED MARKETING</p>
+<p>© 2026 All Rights Reserved</p>
+</footer>
+
+<script type="module">
+import "./firebase.js";
+
+const box=document.getElementById("products");
+
+async function loadProducts(){
+ try{
+  const products=await window.getProductsFromDb();
+  box.innerHTML="";
+
+  if(products.length===0){
+   box.innerHTML="<p>No products available.</p>";
+   return;
+  }
+
+  products.forEach(p=>{
+   const card=document.createElement("div");
+   card.className="card";
+
+   if(p.imageUrl){
+    const img=document.createElement("img");
+    img.src=p.imageUrl;
+    img.alt=p.name;
+    card.appendChild(img);
+   }
+
+   const name=document.createElement("h3");
+   name.textContent=p.name;
+
+   const price=document.createElement("p");
+   price.className="price";
+   price.textContent="₹"+p.price;
+
+   const description=document.createElement("p");
+   description.textContent=p.description||"";
+
+   const buyButton = document.createElement("button");
+buyButton.textContent = "Buy Now";
+
+buyButton.onclick = () => {
+  const params = new URLSearchParams({
+    name: p.name,
+    price: p.price
+  });
+
+  window.location.href = "checkout.html?" + params.toString();
+};
+
+card.append(name, price, description, buyButton);
+   box.appendChild(card);
+  });
+
+ }catch(error){
+  box.textContent="Products could not be loaded.";
+  console.error(error);
+ }
+}
+
+loadProducts();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Payment - SHUBHAM TRUSTED MARKETING</title>
+<style>
+body{
+ background:#0b1020;
+ color:white;
+ font-family:Arial,sans-serif;
+ text-align:center;
+ padding:20px;
+}
+.box{
+ max-width:420px;
+ margin:30px auto;
+ padding:25px;
+ background:#18223c;
+ border-radius:15px;
+}
+h1{color:#f5c451}
+button{
+ padding:12px 25px;
+ border:0;
+ border-radius:8px;
+ background:#eab83f;
+ font-weight:bold;
+}
+.note{color:#ffc96b}
+</style>
+</head>
+<body>
+<div class="box">
+<h1>Payment Details</h1>
+<h2 id="product">Loading...</h2>
+<h2 id="price"></h2>
+
+<p>Payment setup is currently unavailable. Please do not send any payment.</p>
+
+<p>Payment is currently unavailable</p>
+<p>After payment, your order will remain pending verification.</p>
+<p>Payment confirmation will be shown only after verified payment.</p>
+
+<button onclick="history.back()">Go Back</button>
+</div>
+
+<script>
+const params=new URLSearchParams(location.search);
+
+document.getElementById("product").textContent=
+"Product: "+(params.get("name")||"Not selected");
+
+document.getElementById("price").textContent=
+"Amount: ₹"+(params.get("price")||"0");
+</script>
+</body>
+</html>

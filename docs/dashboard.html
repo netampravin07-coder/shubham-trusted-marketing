@@ -1,0 +1,217 @@
+
+      list.append(card);
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shubham Trusted Marketing</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #101827;
+  color: white;
+}
+header {
+  background: #172b4d;
+  padding: 20px;
+  text-align: center;
+}
+.container { padding: 20px; }
+h2 { color: #00d4ff; }
+.products {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
+  gap: 15px;
+}
+.card {
+  background: #1e293b;
+  padding: 20px;
+  border-radius: 12px;
+}
+.card img {
+  width: 100%;
+  max-height: 160px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+button {
+  background: #00bcd4;
+  border: none;
+  padding: 11px 16px;
+  border-radius: 6px;
+  margin-top: 10px;
+}
+input, textarea {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 6px;
+  border: none;
+}
+#admin {
+  display: none;
+  background: #1e293b;
+  padding: 20px;
+  border-radius: 12px;
+  margin-top: 25px;
+}
+</style>
+</head>
+
+<body>
+<header>
+  <h1>SHUBHAM TRUSTED MARKETING</h1>
+  <p>Your Digital Products Marketplace</p>
+</header>
+
+<div class="container">
+  <h2>Available Products</h2>
+  <p id="status">Loading...</p>
+  <div class="products" id="productList"></div>
+
+  <div id="admin">
+    <h2>Admin Dashboard</h2>
+
+    <input id="productName" placeholder="Product Name">
+    <input id="productPrice" type="number" placeholder="Product Price">
+    <textarea id="productDescription" placeholder="Product Description"></textarea>
+    <input id="productImage" type="url" placeholder="Product Image URL">
+
+    <button id="addButton">Add Product</button>
+    <p id="message"></p>
+  </div>
+</div>
+
+<script type="module">
+import "./firebase.js";
+
+import {
+  getAuth,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/13.4.0/firebase-auth.js";
+
+const ADMIN_UID = "Whpfa3ACZdZs7u8dCIzxfgd1EGR2";
+const auth = getAuth();
+
+const list = document.getElementById("productList");
+const status = document.getElementById("status");
+const admin = document.getElementById("admin");
+const message = document.getElementById("message");
+
+let isAdmin = false;
+
+async function showProducts() {
+  list.replaceChildren();
+
+  try {
+    const products = await window.getProductsFromDb();
+
+    status.textContent = products.length
+      ? ""
+      : "No products available.";
+
+    products.forEach(product => {
+      const card = document.createElement("div");
+      card.className = "card";
+
+      if (product.imageUrl) {
+        const img = document.createElement("img");
+        img.src = product.imageUrl;
+        img.alt = product.name;
+        img.referrerPolicy = "no-referrer";
+        card.append(img);
+      }
+
+      const title = document.createElement("h3");
+      title.textContent = product.name;
+
+      const price = document.createElement("p");
+      price.textContent = "Price: ₹" + product.price;
+
+      const description = document.createElement("p");
+      description.textContent = product.description || "";
+
+      card.append(title, price, description);
+
+      if (isAdmin) {
+        const button = document.createElement("button");
+        button.textContent = "Delete";
+
+        button.onclick = async () => {
+          if (!confirm("Delete this product?")) return;
+          try {
+            await window.deleteProductFromDb(product.id);
+            await showProducts();
+          } catch (error) {
+            alert(error.message);
+          }
+        };
+
+        card.append(button);
+      }
+
+      list.append(card);
+    });
+
+  } catch (error) {
+    status.textContent = "Error: " + error.message;
+  }
+}
+
+onAuthStateChanged(auth, async user => {
+  isAdmin = !!user && user.uid === ADMIN_UID;
+  admin.style.display = isAdmin ? "block" : "none";
+
+  if (!user) {
+    status.textContent = "Please login first.";
+    return;
+  }
+
+  await showProducts();
+});
+
+document.getElementById("addButton").onclick = async () => {
+  if (!isAdmin) return;
+
+  const name = document.getElementById("productName").value.trim();
+  const price = Number(document.getElementById("productPrice").value);
+  const description = document.getElementById("productDescription").value.trim();
+  const imageUrl = document.getElementById("productImage").value.trim();
+
+  if (!name || !Number.isFinite(price) || price <= 0) {
+    message.textContent = "Enter valid product name and price.";
+    return;
+  }
+
+  if (imageUrl) {
+    try {
+      const url = new URL(imageUrl);
+      if (!["https:", "http:"].includes(url.protocol)) throw new Error();
+    } catch {
+      message.textContent = "Enter a valid image URL.";
+      return;
+    }
+  }
+
+  try {
+    await window.addProductToDb(name, price, description, imageUrl);
+
+    document.getElementById("productName").value = "";
+    document.getElementById("productPrice").value = "";
+    document.getElementById("productDescription").value = "";
+    document.getElementById("productImage").value = "";
+
+    message.textContent = "Product added!";
+    await showProducts();
+  } catch (error) {
+    message.textContent = "Error: " + error.message;
+  }
+};
+</script>
+</body>
+</html>
